@@ -25,7 +25,7 @@ class FriendlyChatApp extends StatelessWidget {
 class ChatMessage extends StatelessWidget {
   ChatMessage({required this.text});
   final String text;
- // const ChatMessage({Key? key}) : super(key: key);
+  // const ChatMessage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class ChatMessage extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(_name, style: Theme.of(context).textTheme.headline4),
+              Text(_name, style: Theme.of(context).textTheme.headline6),
               Container(
                 margin: EdgeInsets.only(top: 5.0),
                 child: Text(text),
@@ -54,29 +54,33 @@ class ChatMessage extends StatelessWidget {
   }
 }
 
-
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);
 
-  @override 
+  @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final List<ChatMessage> _messages = [];
+  final FocusNode _focusNode = FocusNode();
   final _textController = TextEditingController();
 
   Widget _buildTextComposer() {
     return IconTheme(
       data: IconThemeData(color: Theme.of(context).colorScheme.secondary),
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 8.0),
+        margin: const EdgeInsets.symmetric(horizontal: 10.0),
+        padding: const EdgeInsets.only(bottom: 20.0),
         child: Row(
           children: [
             Flexible(
               child: TextField(
                 controller: _textController,
                 onSubmitted: _handleSubmitted,
-                decoration: InputDecoration.collapsed(hintText: 'Send a message'),
+                decoration:
+                    InputDecoration.collapsed(hintText: 'Send a message'),
+                focusNode: _focusNode,
               ),
             ),
             Container(
@@ -94,12 +98,36 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Friendly Chat')),
-      body: _buildTextComposer(),
+        appBar: AppBar(title: const Text('Friendly Chat')),
+        body: Column(
+          children: [
+            Flexible(
+              child: ListView.builder(
+                itemBuilder: (_, int index) => _messages[index],
+                padding: EdgeInsets.all(8.0),
+                reverse: true,
+                itemCount: _messages.length,
+              ),
+            ),
+            Divider(height: 1.0),
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor),
+                child:_buildTextComposer(),
+              ),
+          ],
+        ),
     );
   }
 
   void _handleSubmitted(String text) {
     _textController.clear();
+    ChatMessage message = ChatMessage(
+      text: text,
+    );
+    setState(() {
+      _messages.insert(0, message);
+    });
+    _focusNode.requestFocus();
   }
 }
