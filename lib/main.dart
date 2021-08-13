@@ -1,10 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 
 void main() {
   runApp(
     const FriendlyChatApp(),
   );
 }
+
+final ThemeData kIOSTheme = ThemeData(
+  primarySwatch: Colors.orange,
+  primaryColor: Colors.grey[100],
+  primaryColorBrightness: Brightness.light,
+);
+
+final ThemeData kDefaultTheme = ThemeData(
+  primarySwatch: Colors.purple,
+  secondaryHeaderColor: Colors.orangeAccent[400],
+);
 
 String _name = "Francisco Uzcategui";
 
@@ -17,6 +30,9 @@ class FriendlyChatApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'FriendlyChat',
+      theme: defaultTargetPlatform == TargetPlatform.iOS
+          ? kIOSTheme
+          : kDefaultTheme,
       home: ChatScreen(),
     );
   }
@@ -30,7 +46,8 @@ class ChatMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
-      opacity: CurvedAnimation(parent: animationController, curve: Curves.easeIn),
+      opacity:
+          CurvedAnimation(parent: animationController, curve: Curves.easeIn),
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 10.0),
         child: Row(
@@ -93,12 +110,19 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               ),
             ),
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: IconButton(
+                margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: Theme.of(context).platform == TargetPlatform.iOS ?
+                CupertinoButton(
+                  child: Text('Send'),
+                  onPressed: _isComposing
+                      ? () =>  _handleSubmitted(_textController.text)
+                      : null,) :
+                IconButton(
                   icon: const Icon(Icons.send),
-                  onPressed: _isComposing ? () => _handleSubmitted(_textController.text) : null,
-              )
-            )
+                  onPressed: _isComposing
+                      ? () => _handleSubmitted(_textController.text)
+                      : null,
+                ))
           ],
         ),
       ),
@@ -108,24 +132,35 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Friendly Chat')),
-      body: Column(
-        children: [
-          Flexible(
-            child: ListView.builder(
-              itemBuilder: (_, int index) => _messages[index],
-              padding: const EdgeInsets.all(8.0),
-              reverse: true,
-              itemCount: _messages.length,
-            ),
-          ),
-          const Divider(height: 1.0),
-          Container(
-            decoration: BoxDecoration(color: Theme.of(context).cardColor),
-            child: _buildTextComposer(),
-          ),
-        ],
+      appBar: AppBar(
+        title: const Text('Friendly Chat'),
+        elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
       ),
+      body: Container(
+        child: Column(
+          children: [
+            Flexible(
+              child: ListView.builder(
+                itemBuilder: (_, int index) => _messages[index],
+                padding: const EdgeInsets.all(8.0),
+                reverse: true,
+                itemCount: _messages.length,
+              ),
+            ),
+            const Divider(height: 1.0),
+            Container(
+              decoration: BoxDecoration(color: Theme.of(context).cardColor),
+              child: _buildTextComposer(),
+            ),
+          ],
+        ),
+        decoration: Theme.of(context).platform == TargetPlatform.iOS
+          ? BoxDecoration(
+          border: Border(
+            top: BorderSide(color: Colors.grey[200]!),
+          ),
+        )
+      : null),
     );
   }
 
