@@ -29,10 +29,8 @@ class ChatMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizeTransition(
-      sizeFactor:
-      CurvedAnimation(parent: animationController, curve: Curves.easeOut),
-      axisAlignment: 0.0,
+    return FadeTransition(
+      opacity: CurvedAnimation(parent: animationController, curve: Curves.easeIn),
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 10.0),
         child: Row(
